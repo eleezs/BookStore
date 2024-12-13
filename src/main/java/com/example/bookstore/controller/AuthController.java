@@ -1,6 +1,7 @@
 package com.example.bookstore.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +20,9 @@ import com.example.bookstore.service.AuthService;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-
   @Autowired
   private AuthService authService;
 
-  @CrossOrigin(origins = "*")
   @PostMapping("/signup")
   public ResponseEntity<AuthService.AuthResponse> signup(@Valid @RequestBody SignUpDto signUpDto) {
     AuthService.AuthResponse response = authService.signupUser(signUpDto);

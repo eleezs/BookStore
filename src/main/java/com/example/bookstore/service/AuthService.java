@@ -13,6 +13,9 @@ import com.example.bookstore.dto.SignUpDto;
 import com.example.bookstore.dto.UserDto;
 import com.example.bookstore.model.User;
 import com.example.bookstore.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,109 +23,81 @@ import org.springframework.beans.factory.annotation.Value;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+	@Autowired
+  private RedisTemplate<String, String> redisTemplate;
 
-    @Value("${jwt.secret_key}")
-    private String JWT_SECRET_KEY;
+	private BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${jwt.expiration_date:1800}")
-    private long EXPIRATION_TIME;
+	@Value("${jwt.secret_key}")
+  private String JWT_SECRET_KEY;
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+  @Value("${jwt.expiration_date: 1800}")
+  private long EXPIRATION_TIME;
 
-    public AuthResponse signupUser(SignUpDto signupDTO) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(signupDTO.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
-        }
+	private String generateToken(User user, String userType) {
+	return JWT.create()
+	.withSubject(user.getEmail())
+	.withClaim("user_type", userType)
+	.withClaim("id", user.getId())
+	.withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))
+	.sign(Algorithm.HMAC512(JWT_SECRET_KEY.getBytes()));
+	}
 
-        // Create new user
-        User user = new User();
-        user.setEmail(signupDTO.getEmail().trim());
-        user.setFirstName(signupDTO.getFirstName());
-        user.setLastName(signupDTO.getLastName());
-        user.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
+	public AuthResponse signupUser(SignUpDto signupDTO) {
+		if (userRepository.existsByEmail(signupDTO.getEmail())) {
+			throw new IllegalArgumentException("Email already in use");
+		}
 
-        userRepository.save(user);
+		User user = new User();
+		user.setEmail(signupDTO.getEmail().trim());
+		user.setFirstName(signupDTO.getFirstName());
+		user.setLastName(signupDTO.getLastName());
+		user.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
 
-        // Generate JWT token
-        String token = generateToken(user, "customer");
+		user = userRepository.save(user);
 
-        // Store token in Redis
-        String redisKey = "settings:user:" + user.getId() + "_token";
-        redisTemplate.opsForValue().set(redisKey, token, EXPIRATION_TIME, TimeUnit.SECONDS);
+		String token = generateToken(user, "customer");
+		String redisKey = "settings:user:" + user.getId() + "_token";
+		redisTemplate.opsForValue().set(redisKey, token, EXPIRATION_TIME, TimeUnit.SECONDS);
 
-        UserDto userDto = mapUserToUserDTO(user);
-        return new AuthResponse(userDto, token);
-    }
+		return new AuthResponse(mapUserToUserDTO(user), token);
+	}
 
-    // public AuthResponse loginUser(LoginDTO loginDTO) {
-    // User user = userRepository.findByEmail(loginDTO.getEmail())
-    // .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
+	private UserDto mapUserToUserDTO(User user) {
+		UserDto userDto = new UserDto();
+		userDto.setId(user.getId());
+		userDto.setEmail(user.getEmail());
+		userDto.setFirstName(user.getFirstName());
+		userDto.setLastName(user.getLastName());
+		return userDto;
+	}
 
-    // if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-    // throw new BadCredentialsException("Invalid credentials");
-    // }
+	public static class AuthResponse {
+		private UserDto user;
+		private String token;
 
-    // String token = generateToken(user, "customer");
+		public AuthResponse(UserDto user, String token) {
+			this.user = user;
+			this.token = token;
+		}
 
-    // // Store token in Redis
-    // String redisKey = "settings:user:" + user.getId().toHexString() + "_login";
-    // redisTemplate.opsForValue().set(redisKey, token, EXPIRATION_TIME,
-    // TimeUnit.SECONDS);
+		public UserDto getUser() {
+			return user;
+		}
 
-    // return new AuthResponse(mapUserToUserDto(user), token);
-    // }
+		public void setUser(UserDto user) {
+			this.user = user;
+		}
 
-    private String generateToken(User user, String userType) {
-        return JWT.create()
-                .withSubject(user.getEmail())
-                .withClaim("user_type", userType)
-                .withClaim("id", user.getId())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))
-                .sign(Algorithm.HMAC512(JWT_SECRET_KEY.getBytes()));
-    }
+		public String getToken() {
+			return token;
+		}
 
-    private UserDto mapUserToUserDTO(User user) {
-        UserDto UserDto = new UserDto();
-        UserDto.setId(user.getId());
-        UserDto.setEmail(user.getEmail());
-        UserDto.setFirstName(user.getFirstName());
-        UserDto.setLastName(user.getLastName());
-        return UserDto;
-    }
-
-
-
-    public static class AuthResponse {
-        private UserDto user;
-        private String token;
-      
-      
-        public AuthResponse(UserDto user, String token) {
-          this.user = user;
-          this.token = token;
-        }
-      
-        public UserDto getUser() {
-          return user;
-        }
-      
-        public void setUser(UserDto user) {
-          this.user = user;
-        }
-      
-        public String getToken() {
-          return token;
-        }
-      
-        public void setToken(String token) {
-          this.token = token;
-        }
-      }
+		public void setToken(String token) {
+			this.token = token;
+		}
+	}
 }
