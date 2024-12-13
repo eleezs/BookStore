@@ -32,13 +32,9 @@ public class UserServiceImplementation implements UserService {
     @Override
     public User updateUser(Long id, User user) {
         User existingUser = getUserById(id);
-        existingUser.setCity(user.getCity());
-        existingUser.setCountryRegion(user.getCountryRegion());
         existingUser.setEmail(user.getEmail());
         existingUser.setFirstName(user.getFirstName());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setPostalCode(user.getPostalCode());
-        existingUser.setStreetAndHouseNumber(user.getStreetAndHouseNumber());
         existingUser.setLastName(user.getLastName());
         existingUser.setUserType(user.getUserType());
         return userRepository.save(existingUser);

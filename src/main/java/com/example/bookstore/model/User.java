@@ -1,5 +1,7 @@
 package com.example.bookstore.model;
 
+import java.sql.Date;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,12 +18,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 60)
-    private String city;
-
-    @Column(name = "country_region", nullable = false, length = 55)
-    private String countryRegion;
-
     @Column(nullable = false, length = 254, unique = true)
     private String email;
 
@@ -31,18 +27,24 @@ public class User {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "phone_number", nullable = false, length = 15)
+    @Column(name = "phoneNumber", nullable = false, length = 15)
     private String phoneNumber;
 
-    @Column(name = "postal_code", nullable = false, length = 18)
-    private String postalCode;
-
-    @Column(name = "street_and_house_number", nullable = false, length = 100)
-    private String streetAndHouseNumber;
+    @Column(name = "address", nullable = false, length = 18)
+    private String address;
 
     @Column(nullable = false, length = 50)
     private String lastName;
 
     @Column(nullable = false, length = 50)
     private String userType;
+
+    @Column(nullable = false, length = 50)
+    private Date lastLoginAt;
+
+    @Column(nullable = false, length = 50)
+    private Date createdAt;
+
+    @Column(nullable = false, length = 50)
+    private Date updatedAt;
 }

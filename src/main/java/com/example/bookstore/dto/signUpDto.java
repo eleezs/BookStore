@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 
-public class signUpDto {
+public class SignUpDto {
 
     @NotBlank(message = "First Name is required")
     @Size(max = 50, message = "First Name cannot exceed 50 characters")
