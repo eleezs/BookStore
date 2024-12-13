@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.bookstore.dto.SignUpDto;
+import com.example.bookstore.dto.*;
 import com.example.bookstore.service.AuthService;
 
 @RestController
@@ -28,4 +28,13 @@ public class AuthController {
     AuthService.AuthResponse response = authService.signupUser(signUpDto);
     return ResponseEntity.ok(response);
   }
+
+  @PostMapping("/login")
+  public ResponseEntity<AuthService.AuthResponse> login(@Valid @RequestBody LoginDto loginDto) {
+    AuthService.AuthResponse response = authService.loginUser(loginDto);
+    return ResponseEntity.ok(response);
+  }
+
+
+
 }

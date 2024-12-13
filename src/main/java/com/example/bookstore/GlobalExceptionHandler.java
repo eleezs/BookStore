@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.example.bookstore.exception.JwtAuthenticationException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,5 +42,23 @@ public class GlobalExceptionHandler {
     response.put("errors", errors);
 
     return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
+  }
+
+  @ExceptionHandler(JwtAuthenticationException.class)
+  public ResponseEntity<Map<String, Object>> handleJwtAuthenticationError(JwtAuthenticationException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("success", false);
+    String message = ex.getMessage();
+
+    // Customize the error message based on the content of the exception
+    if (message.contains("expired")) {
+      response.put("message", "Your session has expired, please log in again.");
+    } else if (message.contains("invalid")) {
+      response.put("message", "Invalid token. Please log in with a valid token.");
+    } else {
+      response.put("message", "Invalid token or session expired.");
+    }
+
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 }

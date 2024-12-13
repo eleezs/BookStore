@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/v1/books")
 public class BookController {
 
     @Autowired
     private BookService bookService;
 
-    @GetMapping
+    @GetMapping("/")
     public List<Book> getAllBooks() {
         return bookService.getAllBooks();
     }

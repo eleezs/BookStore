@@ -1,7 +1,9 @@
 package com.example.bookstore.service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.redis.core.RedisTemplate;
 
 // import com.example.bookstore.dto.LoginDTO;
-import com.example.bookstore.dto.SignUpDto;
+import com.example.bookstore.dto.*;
 import com.example.bookstore.dto.UserDto;
 import com.example.bookstore.model.User;
 import com.example.bookstore.repository.UserRepository;
@@ -29,6 +31,7 @@ public class AuthService {
 	@Autowired
   private RedisTemplate<String, String> redisTemplate;
 
+	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 
 	@Value("${jwt.secret_key}")
@@ -55,6 +58,8 @@ public class AuthService {
 		user.setEmail(signupDTO.getEmail().trim());
 		user.setFirstName(signupDTO.getFirstName());
 		user.setLastName(signupDTO.getLastName());
+		user.setUserType("customer");
+		user.setLastLoginAt(LocalDateTime.now());
 		user.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
 
 		user = userRepository.save(user);
@@ -65,6 +70,27 @@ public class AuthService {
 
 		return new AuthResponse(mapUserToUserDTO(user), token);
 	}
+
+	public AuthResponse loginUser(LoginDto loginDto) {
+		String email = loginDto.getEmail().trim();
+		String password = loginDto.getPassword();
+	
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+		if (!passwordEncoder.matches(password, user.getPassword())) {
+			throw new IllegalArgumentException("Invalid email or password");
+		}
+
+		user.setLastLoginAt(LocalDateTime.now());
+		user = userRepository.save(user);
+
+		String token = generateToken(user, "customer");
+		String redisKey = "settings:user:" + user.getId() + "_token";
+		redisTemplate.opsForValue().set(redisKey, token, EXPIRATION_TIME, TimeUnit.SECONDS);
+
+		return new AuthResponse(mapUserToUserDTO(user), token);
+	};
 
 	private UserDto mapUserToUserDTO(User user) {
 		UserDto userDto = new UserDto();

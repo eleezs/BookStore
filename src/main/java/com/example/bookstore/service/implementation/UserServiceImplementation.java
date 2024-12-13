@@ -34,7 +34,6 @@ public class UserServiceImplementation implements UserService {
         User existingUser = getUserById(id);
         existingUser.setEmail(user.getEmail());
         existingUser.setFirstName(user.getFirstName());
-        existingUser.setPhoneNumber(user.getPhoneNumber());
         existingUser.setLastName(user.getLastName());
         existingUser.setUserType(user.getUserType());
         return userRepository.save(existingUser);

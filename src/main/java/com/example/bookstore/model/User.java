@@ -1,6 +1,7 @@
 package com.example.bookstore.model;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,24 +28,29 @@ public class User {
     @Column(nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "phoneNumber", nullable = false, length = 15)
-    private String phoneNumber;
-
-    @Column(name = "address", nullable = false, length = 18)
-    private String address;
-
     @Column(nullable = false, length = 50)
     private String lastName;
 
     @Column(nullable = false, length = 50)
     private String userType;
 
-    @Column(nullable = false, length = 50)
-    private Date lastLoginAt;
+    @Column(nullable = false)
+    private LocalDateTime lastLoginAt;
+
+    @Column(updatable = false) // Prevent updates to this field
+    private LocalDateTime createdAt;
 
     @Column(nullable = false, length = 50)
-    private Date createdAt;
+    private LocalDateTime updatedAt;
 
-    @Column(nullable = false, length = 50)
-    private Date updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

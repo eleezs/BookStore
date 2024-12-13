@@ -25,9 +25,6 @@ public class UserDto {
     
     private String phoneNumber;
     
-    // Address information
-    private AddressDto address;
-    
     // Role information
     private String userType;
     
@@ -41,19 +38,5 @@ public class UserDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
     
-}
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class AddressDto {
-    private String streetAddress;
-    private String streetAddress2;
-    private String city;
-    private String state;
-    private String country;
-    private String postalCode;
-    private boolean isDefault;
 }
 
