@@ -5,9 +5,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 @Entity
+@Table(name = "`order`")
 public class Order {
 
   @Id
@@ -31,15 +30,17 @@ public class Order {
   // @JsonBackReference
   // private Order order;
   
-   @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "order_books",
-        joinColumns = @JoinColumn(name = "order_id"),
-        inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    private List<Book> books = new ArrayList<>();
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "order_books",
+      joinColumns = @JoinColumn(name = "order_id"),
+      inverseJoinColumns = @JoinColumn(name = "book_id")
+  )
+  private List<Book> books = new ArrayList<>();
 
-
+  @OneToOne
+  private Transaction transaction;
+  
   private Double totalAmount; // Total price of the order
 
   @Enumerated(EnumType.STRING)

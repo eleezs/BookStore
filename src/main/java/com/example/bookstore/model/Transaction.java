@@ -45,7 +45,7 @@ public class Transaction {
     this.updatedAt = LocalDateTime.now();
   }
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "user_id")
   private User user; // Reference to the user making the payment
 

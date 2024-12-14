@@ -25,7 +25,7 @@ public class Book {
   @Column(updatable = false) // Prevent updates to this field
   private LocalDateTime createdAt;
 
-  @Column(nullable = false, length = 50)
+  @Column
   private LocalDateTime updatedAt;
 
   @PrePersist
