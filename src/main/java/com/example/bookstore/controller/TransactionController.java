@@ -23,9 +23,8 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> getAllTransactions(
-            @Valid @RequestParam GetTransactionsDto getTransactionsDto) {
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getAllTransactions(@Valid @RequestParam GetTransactionsDto getTransactionsDto) {
         Page<Transaction> transactionPage = transactionService.getAllTransactions(getTransactionsDto);
 
         Map<String, Object> response = new HashMap<>();
@@ -43,7 +42,7 @@ public class TransactionController {
         return ResponseEntity.ok(transaction);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Transaction> createTransaction(@Validated @RequestBody TransactionDto transactionDto) {
         Transaction transaction = transactionService.processTransaction(transactionDto);
         return ResponseEntity.ok(transaction);

@@ -2,7 +2,6 @@ package com.example.bookstore.model;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "transactions")
 public class Transaction {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,8 @@ public class Transaction {
 
   private Double amount;
 
-  private String paymentMethod; // e.g., "CARD", "BANK_TRANSFER", "CASH"
+  @Enumerated(EnumType.STRING)
+  private PaymentMethod paymentMethod; // e.g., "CARD", "BANK_TRANSFER", "CASH"
 
   @Enumerated(EnumType.STRING)
   private PaymentStatus status; // e.g., "SUCCESS", "FAILED", "PENDING"
@@ -53,96 +54,11 @@ public class Transaction {
   @JoinColumn(name = "order_id")
   private Order order;
 
-
-
   public enum PaymentStatus {
     SUCCESS, FAILED, PENDING, CANCELLED
   }
 
-  // public Transaction() {
-  // }
-
-  public Transaction(Double amount, String paymentMethod, PaymentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, User user, Order order) {
-    this.amount = amount;
-    this.paymentMethod = paymentMethod;
-    this.status = status;
-    this.user = user;
-    this.order = order;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+  public enum PaymentMethod {
+    CARD, BANK_TRANSFER, REGISTERED, CASH, USSD
   }
-
-  // Getters and Setters - TODO: remove getter and setters code
-  // public Long getId() {
-  //   return id;
-  // }
-
-  // public void setId(Long id) {
-  //   this.id = id;
-  // }
-
-  // public Double getAmount() {
-  //   return amount;
-  // }
-
-  // public void setAmount(Double amount) {
-  //   this.amount = amount;
-  // }
-
-  // public String getPaymentMethod() {
-  //   return paymentMethod;
-  // }
-
-  // public void setPaymentMethod(String paymentMethod) {
-  //   this.paymentMethod = paymentMethod;
-  // }
-
-  // public PaymentStatus getStatus() {
-  //   return status;
-  // }
-
-  // public void setStatus(PaymentStatus status) {
-  //   this.status = status;
-  // }
-
-  // public LocalDateTime getCreatedAt() {
-  //   return createdAt;
-  // }
-
-  // public void setCreatedAt(LocalDateTime createdAt) {
-  //   this.createdAt = createdAt;
-  // }
-
-  // public LocalDateTime getUpdatedAt() {
-  //   return updatedAt;
-  // }
-
-  // public void setUpdatedAt(LocalDateTime updatedAt) {
-  //   this.updatedAt = updatedAt;
-  // }
-
-  // public User getUser() {
-  //   return user;
-  // }
-
-  // public void setUser(User user) {
-  //   this.user = user;
-  // }
-
-  // public Order getOrder() {
-  //   return orderId;
-  // }
-
-  // public void setOrder(Order order) {
-  //   this.orderId = order;
-  // }
-
-  // public String getTransactionId() {
-  //   return transactionId;
-  // }
-
-  // public void setTransactionId(String transactionId) {
-  //   this.transactionId = transactionId;
-  // }
-
 }

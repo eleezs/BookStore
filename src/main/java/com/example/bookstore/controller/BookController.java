@@ -1,6 +1,7 @@
 package com.example.bookstore.controller;
 
 import com.example.bookstore.dto.CreateBookDto;
+import com.example.bookstore.dto.GetBooksDto;
 import com.example.bookstore.dto.UpdateBookDto;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.service.BookService;
@@ -22,16 +23,9 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> getAllBooks(
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String isbn,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<Book> bookPage = bookService.getAllBooks(author, title, isbn, minPrice, maxPrice, page, size);
+    @GetMapping()
+    public ResponseEntity<Map<String, Object>> getAllBooks(@Valid @RequestParam GetBooksDto getBooksDto) {
+        Page<Book> bookPage = bookService.getAllBooks(getBooksDto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("books", bookPage.getContent());

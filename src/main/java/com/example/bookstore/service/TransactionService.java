@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.example.bookstore.model.Transaction;
+import com.example.bookstore.model.Transaction.PaymentMethod;
 import com.example.bookstore.model.Transaction.PaymentStatus;
 import com.example.bookstore.repository.TransactionRepository;
 import com.example.bookstore.dto.GetTransactionsDto;
@@ -36,11 +37,12 @@ public class TransactionService {
 		Pageable pageable = PageRequest.of(getTransactionDto.getPage(), getTransactionDto.getSize());
 		return transactionRepository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
-      String paymentMethod = getTransactionDto.getPaymentMethod();
-      String userId = getTransactionDto.getUserId();
-      String orderId = getTransactionDto.getOrderId();
-      PaymentStatus status = getTransactionDto.getStatus();
-      LocalDateTime createdAt = getTransactionDto.getCreatedAt();
+			String paymentMethod = getTransactionDto.getPaymentMethod();
+			
+			String userId = getTransactionDto.getUserId();
+			String orderId = getTransactionDto.getOrderId();
+			PaymentStatus status = getTransactionDto.getStatus();
+			LocalDateTime createdAt = getTransactionDto.getCreatedAt();
 
 			if (paymentMethod != null && !paymentMethod.isEmpty()) {
 				predicates.add(cb.like(cb.lower(root.get("paymentMethod")), "%" + paymentMethod.toLowerCase() + "%"));
@@ -76,7 +78,7 @@ public class TransactionService {
   public Transaction processTransaction(TransactionDto transactionDto) {
     Transaction transaction = new Transaction();
     transaction.setAmount(transactionDto.getAmount());
-    transaction.setPaymentMethod(transactionDto.getPaymentMethod());
+    transaction.setPaymentMethod(PaymentMethod.valueOf(transactionDto.getPaymentMethod()));
     transaction.setCreatedAt(LocalDateTime.now());
     transaction.setStatus(PaymentStatus.valueOf(simulatePaymentProcessing()));
     transactionRepository.save(transaction);

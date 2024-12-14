@@ -4,6 +4,17 @@ import jakarta.validation.constraints.*;
 import com.example.bookstore.validation.ValidISBN;
 import java.util.Optional;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class UpdateBookDto {
   @NotNull
   private Optional<String> title = Optional.empty();
@@ -16,36 +27,4 @@ public class UpdateBookDto {
 
   @ValidISBN
   private String isbn;
-
-  public Optional<String> getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = Optional.ofNullable(title);
-  }
-
-  public Optional<String> getAuthor() {
-    return author;
-  }
-
-  public void setAuthor(String author) {
-    this.author = Optional.ofNullable(author);
-  }
-
-  public Optional<Double> getPrice() {
-    return price;
-  }
-
-  public void setPrice(Double price) {
-    this.price = Optional.ofNullable(price);
-  }
-
-  public String getIsbn() {
-    return isbn;
-  }
-
-  public void setIsbn(String isbn) {
-    this.isbn = isbn;
-  }
 }

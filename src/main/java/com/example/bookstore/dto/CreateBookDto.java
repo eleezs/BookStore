@@ -3,6 +3,17 @@ package com.example.bookstore.dto;
 import jakarta.validation.constraints.*;
 import com.example.bookstore.validation.ValidISBN;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public class CreateBookDto {
 
   @NotBlank(message = "Title is required")
@@ -20,38 +31,4 @@ public class CreateBookDto {
   @DecimalMin(value = "0.01", message = "Price must be greater than 0")
   @Digits(integer = 10, fraction = 2, message = "Price must be a valid monetary amount. i.e 2dp")
   private Double price;
-
-  // Getters and Setters
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getAuthor() {
-    return author;
-  }
-
-  public void setAuthor(String author) {
-    this.author = author;
-  }
-
-  public String getIsbn() {
-    return isbn;
-  }
-
-  public void setIsbn(String isbn) {
-    this.isbn = isbn;
-  }
-
-  public Double getPrice() {
-    return price;
-  }
-
-  public void setPrice(Double price) {
-    this.price = price;
-  }
 }
