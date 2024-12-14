@@ -1,13 +1,19 @@
 package com.example.bookstore.controller;
 
+import com.example.bookstore.dto.CreateBookDto;
+import com.example.bookstore.dto.UpdateBookDto;
 import com.example.bookstore.model.Book;
 import com.example.bookstore.service.BookService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/books")
@@ -17,38 +23,44 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping("/")
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<Map<String, Object>> getAllBooks(
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String isbn,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<Book> bookPage = bookService.getAllBooks(author, title, isbn, minPrice, maxPrice, page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("books", bookPage.getContent());
+        response.put("currentPage", bookPage.getNumber());
+        response.put("totalItems", bookPage.getTotalElements());
+        response.put("totalPages", bookPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
-        Optional<Book> book = bookService.getBookById(id);
-        return book.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Book book = bookService.getBookById(id);
+        return ResponseEntity.ok(book);
     }
 
-    @PostMapping
-    public Book createBook(@RequestBody Book book) {
+    @PostMapping("/create")
+    public Book createBook(@Valid @RequestBody CreateBookDto book) {
         return bookService.saveBook(book);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-        Optional<Book> existingBook = bookService.getBookById(id);
-        if (existingBook.isPresent()) {
-            book.setId(id);
-            return ResponseEntity.ok(bookService.saveBook(book));
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody UpdateBookDto book) {
+        return ResponseEntity.ok(bookService.updateBook(id, book));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        Optional<Book> existingBook = bookService.getBookById(id);
-        if (existingBook.isPresent()) {
-            bookService.deleteBook(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 }

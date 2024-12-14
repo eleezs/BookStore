@@ -1,7 +1,12 @@
 package com.example.bookstore.model;
 
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
@@ -15,16 +20,35 @@ public class Book {
   private String author;
   private String isbn;
   private double price;
+  private int quantity;
+
+  @Column(updatable = false) // Prevent updates to this field
+  private LocalDateTime createdAt;
+
+  @Column(nullable = false, length = 50)
+  private LocalDateTime updatedAt;
+
+  @PrePersist
+  protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
 
   // Constructors, getters, and setters
   public Book() {
   }
 
-  public Book(String title, String author, String isbn, double price) {
+  public Book(String title, String author, String isbn, double price, int quantity) {
     this.title = title;
     this.author = author;
     this.isbn = isbn;
     this.price = price;
+    this.quantity = quantity;
   }
 
   public Long getId() {
@@ -65,5 +89,13 @@ public class Book {
 
   public void setPrice(double price) {
     this.price = price;
+  }
+
+  public int getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(int quantity) {
+    this.quantity = quantity;
   }
 }

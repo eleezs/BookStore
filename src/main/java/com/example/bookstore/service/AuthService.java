@@ -16,8 +16,6 @@ import com.example.bookstore.dto.UserDto;
 import com.example.bookstore.model.User;
 import com.example.bookstore.repository.UserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,27 +24,27 @@ import org.springframework.beans.factory.annotation.Value;
 public class AuthService {
 
 	@Autowired
-  private UserRepository userRepository;
+	private UserRepository userRepository;
 
 	@Autowired
-  private RedisTemplate<String, String> redisTemplate;
+	private RedisTemplate<String, String> redisTemplate;
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 
 	@Value("${jwt.secret_key}")
-  private String JWT_SECRET_KEY;
+	private String JWT_SECRET_KEY;
 
-  @Value("${jwt.expiration_date: 1800}")
-  private long EXPIRATION_TIME;
+	@Value("${jwt.expiration_date: 1800}")
+	private long EXPIRATION_TIME;
 
 	private String generateToken(User user, String userType) {
-	return JWT.create()
-	.withSubject(user.getEmail())
-	.withClaim("user_type", userType)
-	.withClaim("id", user.getId())
-	.withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))
-	.sign(Algorithm.HMAC512(JWT_SECRET_KEY.getBytes()));
+		return JWT.create()
+				.withSubject(user.getEmail())
+				.withClaim("user_type", userType)
+				.withClaim("id", user.getId())
+				.withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 1000))
+				.sign(Algorithm.HMAC512(JWT_SECRET_KEY.getBytes()));
 	}
 
 	public AuthResponse signupUser(SignUpDto signupDTO) {
@@ -74,7 +72,7 @@ public class AuthService {
 	public AuthResponse loginUser(LoginDto loginDto) {
 		String email = loginDto.getEmail().trim();
 		String password = loginDto.getPassword();
-	
+
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 

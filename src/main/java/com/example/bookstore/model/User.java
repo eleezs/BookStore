@@ -1,8 +1,8 @@
 package com.example.bookstore.model;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,6 +42,10 @@ public class User {
 
     @Column(nullable = false, length = 50)
     private LocalDateTime updatedAt;
+
+    // @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // @JsonBackReference
+    // private User user;
 
     @PrePersist
     protected void onCreate() {

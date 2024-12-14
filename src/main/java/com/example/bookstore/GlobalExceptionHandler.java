@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.example.bookstore.exception.JwtAuthenticationException;
+import com.example.bookstore.exception.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     Map<String, Object> response = new HashMap<>();
     response.put("success", false);
     String message = ex.getMessage();
-
+    System.out.println("JwtAuthenticationFilter: Authentication failed - " + ex.getMessage());
     // Customize the error message based on the content of the exception
     if (message.contains("expired")) {
       response.put("message", "Your session has expired, please log in again.");
@@ -61,4 +61,21 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
+
+  @ExceptionHandler(DuplicateException.class)
+  public ResponseEntity<Map<String, Object>> handleDuplicateISBN(DuplicateException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("success", false);
+    response.put("message", ex.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 Conflict
+  }
+
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> EntityNotFoundException(EntityNotFoundException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("success", false);
+    response.put("message", ex.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Conflict
+  }
+
 }
