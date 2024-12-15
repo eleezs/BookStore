@@ -23,6 +23,10 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> getAllBooks(@Valid GetBooksDto getBooksDto) {
         Page<Book> bookPage = bookService.getAllBooks(getBooksDto);
@@ -43,8 +47,8 @@ public class BookController {
     }
 
     @PostMapping("/create")
-    public Book createBook(@Valid @RequestBody CreateBookDto book) {
-        return bookService.saveBook(book);
+    public ResponseEntity<Book> createBook(@Valid @RequestBody CreateBookDto book) {
+        return ResponseEntity.ok(bookService.saveBook(book));
     }
 
     @PutMapping("/{id}")
