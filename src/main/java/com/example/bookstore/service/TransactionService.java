@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.bookstore.model.BookCart;
 import com.example.bookstore.model.Order;
+import com.example.bookstore.model.Order.StatusEnum;
 import com.example.bookstore.model.Transaction;
 import com.example.bookstore.model.Transaction.PaymentMethod;
 import com.example.bookstore.model.Transaction.PaymentStatus;
@@ -32,10 +33,11 @@ public class TransactionService {
 
 	private final TransactionRepository transactionRepository;
 	// private final BookCartRepository bookCartRepository;
-	// private final OrderRepository orderRepository;
+	private final OrderRepository orderRepository;
 
-	public TransactionService(TransactionRepository transactionRepository) {
+	public TransactionService(TransactionRepository transactionRepository, OrderRepository orderRepository) {
 		this.transactionRepository = transactionRepository;
+		this.orderRepository = orderRepository;
 	}
 
 	// public Page<Transaction> getAllTransactions(GetTransactionsDto
@@ -86,11 +88,11 @@ public class TransactionService {
 	// 				"Transaction not found"));transaction.setStatus(PaymentStatus.valueOf(status));return transactionRepository.save(transaction);
 	// }
 
-	public Transaction processTransaction(Order order, String paymentMethod) {
+	public Transaction processTransaction(Order order, PaymentMethod paymentMethod) {
 		Transaction transaction = new Transaction();
 		transaction.setOrder(order);
 		transaction.setAmount(order.getTotalPrice());
-		// transaction.setStatus(PaymentStatus.valueOf(simulatePaymentProcessing()));
+		transaction.setPaymentMethod(paymentMethod);
 
 		try {
 			// Simulated payment logic
@@ -101,11 +103,14 @@ public class TransactionService {
 			throw new PaymentProcessingException("Payment failed: " + e.getMessage());
 		}
 
+		if(transaction.getStatus() == PaymentStatus.valueOf("SUCCESS")) order.setStatus(StatusEnum.valueOf("COMPLETED"));
+
+		orderRepository.save(order);
 		// Save the transaction log
 		return transactionRepository.save(transaction);
 	}
 
-	private boolean simulatePayment(String paymentMethod, double amount) {
+	private boolean simulatePayment(PaymentMethod paymentMethod, double amount) {
 		// Simulate payment success or failure
 		return Math.random() > 0.2; // 80% chance of success
 	}

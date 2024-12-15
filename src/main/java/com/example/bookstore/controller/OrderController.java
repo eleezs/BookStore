@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.bookstore.model.Transaction;
+import com.example.bookstore.model.Transaction.PaymentMethod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class OrderController {
         this.transactionService =  transactionService;
     }
 
-    @PostMapping("/api/v1/order")
+    @PostMapping("/")
     public ResponseEntity<?> createOrder(@RequestParam Long userId) {
         Order order = orderService.makeOrder(userId);
         return ResponseEntity.ok(order);
@@ -38,17 +39,21 @@ public class OrderController {
     @PostMapping("/{orderId}/pay")
     public ResponseEntity<Transaction> processTransaction(
             @PathVariable Long orderId,
-            @RequestParam String paymentMethod) {
+            @RequestParam PaymentMethod paymentMethod) {
         Order order = orderService.getOrderById(orderId); // Method to fetch order by ID
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+        System.out.println("order: " + order);
         Transaction transaction = transactionService.processTransaction(order, paymentMethod);
         return ResponseEntity.ok(transaction);
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-    // Order order = orderService.getOrderById(id);
-    // return ResponseEntity.ok(order);
-    // }
+    @GetMapping("/order/{id}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    Order order = orderService.getOrderById(id);
+    return ResponseEntity.ok(order);
+    }
 
     // @GetMapping("/")
     // public ResponseEntity<Map<String, Object>> getAllOrders(@Valid GetOrdersDto
