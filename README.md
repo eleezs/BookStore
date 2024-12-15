@@ -139,4 +139,4 @@ For deployment, build a JAR file using Maven and then run it using the Java comm
 Alternatively, deploy in Containerized environments (Docker, Kubernetes).
 
 
-![System Architecture Diagram](image.png)
+![High-Level System Design Diagram](image.png)
