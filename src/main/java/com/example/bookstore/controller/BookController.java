@@ -25,7 +25,6 @@ public class BookController {
 
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> getAllBooks(@Valid GetBooksDto getBooksDto) {
-        System.out.println(getBooksDto.toString() + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
         Page<Book> bookPage = bookService.getAllBooks(getBooksDto);
 
         Map<String, Object> response = new HashMap<>();

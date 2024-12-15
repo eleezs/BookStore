@@ -78,4 +78,12 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 Conflict
   }
 
+  @ExceptionHandler(PaymentProcessingException.class)
+  public ResponseEntity<Map<String, Object>> handlePaymentError(PaymentProcessingException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("success", false);
+    response.put("message", ex.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
 }

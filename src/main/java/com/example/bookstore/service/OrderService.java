@@ -3,11 +3,13 @@ package com.example.bookstore.service;
 import com.example.bookstore.dto.GetOrdersDto;
 import com.example.bookstore.dto.OrderRequestDto;
 import com.example.bookstore.model.Order;
+import com.example.bookstore.model.BookCart;
+import com.example.bookstore.model.CartItem;
 import com.example.bookstore.model.Order.StatusEnum;
+import com.example.bookstore.model.OrderItem;
 import com.example.bookstore.repository.OrderRepository;
-
 import jakarta.persistence.criteria.Predicate;
-
+import com.example.bookstore.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,76 +26,51 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+import com.example.bookstore.repository.BookCartRepository;
+
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final BookCartRepository bookCartRepository;
+    private final OrderRepository orderRepository;
 
-    public Order createOrder(OrderRequestDto orderRequestDto) {
+    public OrderService(BookCartRepository bookCartRepository, OrderRepository orderRepository) {
+        this.bookCartRepository = bookCartRepository;
+        this.orderRepository = orderRepository;
+    }
+
+    public Order makeOrder(Long userId) {
+        BookCart cart = bookCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found for user: " + userId));
+
+        if (cart.getItems().isEmpty()) {
+            throw new EntityNotFoundException("Cart is empty, cannot create order.");
+        }
+
         Order order = new Order();
-        order.setUser(orderRequestDto.getUser());
-        order.setBooks(orderRequestDto.getBooks());
-        order.setTotalAmount(orderRequestDto.getTotalAmount());
-        order.setStatus(orderRequestDto.getStatus());
-        order.setOrderDate(orderRequestDto.getOrderDate());
-        order.setDeliveryDate(orderRequestDto.getDeliveryDate());
+        order.setUserId(userId);
+        order.setStatus(StatusEnum.valueOf("PENDING"));
+
+        double totalPrice = 0.0;
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setBook(cartItem.getBook());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPrice(cartItem.getQuantity() * cartItem.getBook().getPrice());
+
+            totalPrice += orderItem.getPrice();
+            order.getItems().add(orderItem);
+        }
+        order.setTotalPrice(totalPrice);
+
+        // Clear the cart after creating the order
+        bookCartRepository.delete(cart);
 
         return orderRepository.save(order);
     }
 
-    public Order getOrderById(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
-        return order;
-    }
-
-	public Page<Order> getAllOrders(GetOrdersDto getOrdersDto) {
-		int size = getOrdersDto.getSize();
-		int offset = getOrdersDto.getPage() == 0 ? 1 : +getOrdersDto.getPage();
-		int page = (offset - 1) * size;
-		Pageable pageable = PageRequest.of(page, size);
-
-		return orderRepository.findAll((root, query, cb) -> {
-			List<Predicate> predicates = new ArrayList<>();
-			String userId = getOrdersDto.getUserId();
-			String bookId = getOrdersDto.getBookId();
-			StatusEnum status = getOrdersDto.getStatus();
-			LocalDate createdAt = getOrdersDto.getCreatedAt();
-
-			if (userId != null && !userId.isEmpty()) {
-				predicates.add(cb.like(cb.lower(root.get("userId")), userId));
-			}
-			if (bookId != null && !bookId.isEmpty()) {
-				predicates.add(cb.like(cb.lower(root.get("bookId")), bookId));
-			}
-			if (status != null) {
-				predicates.add(cb.equal(root.get("status"), status));
-			}
-			if (createdAt != null) {
-				predicates.add(cb.equal(cb.function("DATE", LocalDate.class, root.get("createdAt")), createdAt));
-			}
-
-			return cb.and(predicates.toArray(new Predicate[0]));
-
-		}, pageable);
-	}
-
-    public Order updateOrder(Long id, OrderRequestDto orderRequestDto) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
-        order.setUser(orderRequestDto.getUser());
-        order.setBooks(orderRequestDto.getBooks());
-        order.setTotalAmount(orderRequestDto.getTotalAmount());
-        order.setStatus(orderRequestDto.getStatus());
-        order.setOrderDate(orderRequestDto.getOrderDate());
-        order.setDeliveryDate(orderRequestDto.getDeliveryDate());
-        return orderRepository.save(order);
-    }
-
-    public void deleteOrder(Long id) {
-        orderRepository.deleteById(id);
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
     }
 }

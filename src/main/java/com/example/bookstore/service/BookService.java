@@ -29,8 +29,9 @@ public class BookService {
 
 	public Page<Book> getAllBooks(GetBooksDto getBooksDto) {
 		int size = getBooksDto.getSize();
-		int offset = getBooksDto.getPage() == 0 ? 1 : +getBooksDto.getPage();
+		int offset = getBooksDto.getPage() == 0 ? 1 : getBooksDto.getPage();
 		int page = (offset - 1) * size;
+		System.out.println("here " + page + "we " + size + "here " + offset);
 		Pageable pageable = PageRequest.of(page, size);
 
 		return bookRepository.findAll((root, query, cb) -> {
@@ -41,6 +42,8 @@ public class BookService {
 			Double minPrice = getBooksDto.getMinPrice();
 			Double maxPrice = getBooksDto.getMaxPrice();
 			LocalDate createdAt = getBooksDto.getCreatedAt();
+			Integer min_quantity = getBooksDto.getMinQuantity();
+			Integer max_quantity = getBooksDto.getMaxQuantity();
 
 			if (author != null && !author.isEmpty()) {
 				predicates.add(cb.like(cb.lower(root.get("author")), "%" + author.toLowerCase() + "%"));
@@ -56,6 +59,15 @@ public class BookService {
 			}
 			if (maxPrice != null) {
 				predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+			}
+			if (createdAt != null) {
+				predicates.add(cb.equal(cb.function("DATE", LocalDate.class, root.get("createdAt")), createdAt));
+			}
+			if (min_quantity != null) {
+				predicates.add(cb.equal(root.get("quantity"), min_quantity));
+			}
+			if (max_quantity != null) {
+				predicates.add(cb.equal(root.get("quantity"), max_quantity));
 			}
 			if (createdAt != null) {
 				predicates.add(cb.equal(cb.function("DATE", LocalDate.class, root.get("createdAt")), createdAt));
@@ -80,6 +92,7 @@ public class BookService {
 		newBook.setAuthor(book.getAuthor());
 		newBook.setPrice(book.getPrice());
 		newBook.setIsbn(book.getIsbn());
+		newBook.setQuantity(book.getQuantity());
 
 		return bookRepository.save(newBook);
 	}
@@ -102,7 +115,11 @@ public class BookService {
 		book.getTitle().ifPresent(existingBook::setTitle);
 		book.getAuthor().ifPresent(existingBook::setAuthor);
 		book.getPrice().ifPresent(existingBook::setPrice);
-		if(isbn != null && !isbn.isEmpty()) existingBook.setIsbn(isbn);
+		book.getQuantity().ifPresent(existingBook::setQuantity);
+
+		
+		if (isbn != null && !isbn.isEmpty())
+			existingBook.setIsbn(isbn);
 
 		return bookRepository.save(existingBook);
 	}

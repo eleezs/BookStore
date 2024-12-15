@@ -20,6 +20,8 @@ public class GetBooksDto {
     private Double minPrice;
     private Double maxPrice;
     private LocalDate createdAt = LocalDate.now(); // Default to current date
+    private Integer minQuantity;
+    private Integer maxQuantity;
     private int page = 0; // Default to 0
     private int size = 10; // Default to 10
 }

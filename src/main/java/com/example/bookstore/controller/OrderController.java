@@ -4,6 +4,7 @@ import com.example.bookstore.dto.GetOrdersDto;
 import com.example.bookstore.dto.OrderRequestDto;
 import com.example.bookstore.model.Order;
 import com.example.bookstore.service.OrderService;
+import com.example.bookstore.service.TransactionService;
 
 import jakarta.validation.Valid;
 
@@ -11,53 +12,68 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.bookstore.model.Transaction;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+    private final TransactionService transactionService;
 
-    @PostMapping("/create")
-    public Order createOrder(@RequestBody OrderRequestDto orderRequestDto) {
-        return orderService.createOrder(orderRequestDto);
+    public OrderController(OrderService orderService, TransactionService transactionService) {
+        this.orderService = orderService;
+        this.transactionService =  transactionService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order order = orderService.getOrderById(id);
+    @PostMapping("/api/v1/order")
+    public ResponseEntity<?> createOrder(@RequestParam Long userId) {
+        Order order = orderService.makeOrder(userId);
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> getAllOrders(@Valid GetOrdersDto getOrdersDto) {
-        Page<Order> orderPage = orderService.getAllOrders(getOrdersDto);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("orders", orderPage.getContent());
-        response.put("currentPage", orderPage.getNumber());
-        response.put("totalItems", orderPage.getTotalElements());
-        response.put("totalPages", orderPage.getTotalPages());
-
-        return ResponseEntity.ok(response);
+    @PostMapping("/{orderId}/pay")
+    public ResponseEntity<Transaction> processTransaction(
+            @PathVariable Long orderId,
+            @RequestParam String paymentMethod) {
+        Order order = orderService.getOrderById(orderId); // Method to fetch order by ID
+        Transaction transaction = transactionService.processTransaction(order, paymentMethod);
+        return ResponseEntity.ok(transaction);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody OrderRequestDto orderRequestDto) {
-        Order order = orderService.updateOrder(id, orderRequestDto);
-        return ResponseEntity.ok(order);
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    // Order order = orderService.getOrderById(id);
+    // return ResponseEntity.ok(order);
+    // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.noContent().build();
-    }
+    // @GetMapping("/")
+    // public ResponseEntity<Map<String, Object>> getAllOrders(@Valid GetOrdersDto
+    // getOrdersDto) {
+    // Page<Order> orderPage = orderService.getAllOrders(getOrdersDto);
+
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("orders", orderPage.getContent());
+    // response.put("currentPage", orderPage.getNumber());
+    // response.put("totalItems", orderPage.getTotalElements());
+    // response.put("totalPages", orderPage.getTotalPages());
+
+    // return ResponseEntity.ok(response);
+    // }
+
+    // @PutMapping("/{id}")
+    // public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody
+    // OrderRequestDto orderRequestDto) {
+    // Order order = orderService.updateOrder(id, orderRequestDto);
+    // return ResponseEntity.ok(order);
+    // }
+
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    // orderService.deleteOrder(id);
+    // return ResponseEntity.noContent().build();
+    // }
 }

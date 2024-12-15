@@ -27,4 +27,7 @@ public class UpdateBookDto {
 
   @ValidISBN
   private String isbn;
+
+  @NotNull
+  private Optional<Integer> quantity = Optional.empty();
 }

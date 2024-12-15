@@ -31,4 +31,8 @@ public class CreateBookDto {
   @DecimalMin(value = "0.01", message = "Price must be greater than 0")
   @Digits(integer = 10, fraction = 2, message = "Price must be a valid monetary amount. i.e 2dp")
   private Double price;
+
+  @NotNull(message = "Quantity is required")
+  @Min(value = 1, message = "Quantity must be at least 1")
+  private Integer quantity;
 }

@@ -23,34 +23,49 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllTransactions(@Valid @RequestParam GetTransactionsDto getTransactionsDto) {
-        Page<Transaction> transactionPage = transactionService.getAllTransactions(getTransactionsDto);
+    // @GetMapping
+    // public ResponseEntity<Map<String, Object>> getAllTransactions(
+    //         @Valid @RequestParam GetTransactionsDto getTransactionsDto) {
+    //     Page<Transaction> transactionPage = transactionService.getAllTransactions(getTransactionsDto);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("transactions", transactionPage.getContent());
-        response.put("currentPage", transactionPage.getNumber());
-        response.put("totalItems", transactionPage.getTotalElements());
-        response.put("totalPages", transactionPage.getTotalPages());
+    //     Map<String, Object> response = new HashMap<>();
+    //     response.put("transactions", transactionPage.getContent());
+    //     response.put("currentPage", transactionPage.getNumber());
+    //     response.put("totalItems", transactionPage.getTotalElements());
+    //     response.put("totalPages", transactionPage.getTotalPages());
 
-        return ResponseEntity.ok(response);
-    }
+    //     return ResponseEntity.ok(response);
+    // }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        Transaction transaction = transactionService.getTransactionById(id);
-        return ResponseEntity.ok(transaction);
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
+    //     Transaction transaction = transactionService.getTransactionById(id);
+    //     return ResponseEntity.ok(transaction);
+    // }
 
-    @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@Validated @RequestBody TransactionDto transactionDto) {
-        Transaction transaction = transactionService.processTransaction(transactionDto);
-        return ResponseEntity.ok(transaction);
-    }
+    // @PostMapping
+    // public ResponseEntity<Transaction> createTransaction(@Validated @RequestBody TransactionDto transactionDto) {
+    //     Transaction transaction = transactionService.processTransaction(transactionDto);
+    //     return ResponseEntity.ok(transaction);
+    // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelTransaction(@PathVariable Long id) {
-        transactionService.updateTransactionStatus(id, PaymentStatus.CANCELLED.name());
-        return ResponseEntity.noContent().build();
-    }
+    // @PostMapping("/order/{cartId}")
+    // public ResponseEntity<Order> createOrder(@PathVariable Long cartId) {
+    //     Order order = transactionService.createOrder(cartId);
+    //     return ResponseEntity.ok(order);
+    // }
+
+    // @PostMapping("/order/{orderId}/complete")
+    // public ResponseEntity<Order> completeOrder(
+    //         @PathVariable Long orderId,
+    //         @RequestParam boolean paymentSuccess) {
+    //     Order order = transactionService.completeOrder(orderId, paymentSuccess);
+    //     return ResponseEntity.ok(order);
+    // }
+
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> cancelTransaction(@PathVariable Long id) {
+    //     transactionService.updateTransactionStatus(id, PaymentStatus.CANCELLED.name());
+    //     return ResponseEntity.noContent().build();
+    // }
 }

@@ -1,6 +1,9 @@
 package com.example.bookstore.model;
 
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
@@ -43,6 +46,7 @@ public class Book {
   }
 
   @ManyToOne
-  @JoinColumn(name = "book_id")
+  // @JoinColumn(name = "book_id")
+  @JsonIgnore // Exclude this field from JSON serialization
   private Order order;
 }

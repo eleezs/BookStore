@@ -19,7 +19,7 @@ public class Transaction {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String transactionId;
+  // private String transactionId;
 
   private Double amount;
 
@@ -46,12 +46,12 @@ public class Transaction {
     this.updatedAt = LocalDateTime.now();
   }
 
-  @OneToOne
-  @JoinColumn(name = "user_id")
-  private User user; // Reference to the user making the payment
+  // @OneToOne
+  // @JoinColumn(name = "user_id")
+  // private User user; // Reference to the user making the payment
 
   @OneToOne
-  @JoinColumn(name = "order_id")
+  // @JoinColumn(name =   "id")
   private Order order;
 
   public enum PaymentStatus {
