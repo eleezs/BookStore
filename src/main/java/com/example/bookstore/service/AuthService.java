@@ -3,7 +3,6 @@ package com.example.bookstore.service;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -56,7 +55,7 @@ public class AuthService {
 		user.setEmail(signupDTO.getEmail().trim());
 		user.setFirstName(signupDTO.getFirstName());
 		user.setLastName(signupDTO.getLastName());
-		user.setUserType("customer");
+		user.setUserType("user");
 		user.setLastLoginAt(LocalDateTime.now());
 		user.setPassword(passwordEncoder.encode(signupDTO.getPassword()));
 

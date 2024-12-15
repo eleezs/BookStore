@@ -1,6 +1,6 @@
 package com.example.bookstore.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class GetBooksDto {
     private String isbn;
     private Double minPrice;
     private Double maxPrice;
-    private LocalDateTime createdAt = LocalDateTime.now(); // Default to current time
+    private LocalDate createdAt = LocalDate.now(); // Default to current date
     private int page = 0; // Default to 0
     private int size = 10; // Default to 10
 }

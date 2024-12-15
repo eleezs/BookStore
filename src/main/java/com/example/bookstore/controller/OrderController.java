@@ -14,15 +14,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/v1/orders")
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
-    @PostMapping
+    @PostMapping("/create")
     public Order createOrder(@RequestBody OrderRequestDto orderRequestDto) {
         return orderService.createOrder(orderRequestDto);
     }
@@ -33,7 +36,8 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    public ResponseEntity<Map<String, Object>> getAllOrders(@Valid @RequestParam GetOrdersDto getOrdersDto) {
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getAllOrders(@Valid GetOrdersDto getOrdersDto) {
         Page<Order> orderPage = orderService.getAllOrders(getOrdersDto);
 
         Map<String, Object> response = new HashMap<>();

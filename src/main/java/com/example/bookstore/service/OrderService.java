@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,14 +52,17 @@ public class OrderService {
     }
 
 	public Page<Order> getAllOrders(GetOrdersDto getOrdersDto) {
+		int size = getOrdersDto.getSize();
+		int offset = getOrdersDto.getPage() == 0 ? 1 : +getOrdersDto.getPage();
+		int page = (offset - 1) * size;
+		Pageable pageable = PageRequest.of(page, size);
 
-		Pageable pageable = PageRequest.of(getOrdersDto.getPage(), getOrdersDto.getSize());
 		return orderRepository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
 			String userId = getOrdersDto.getUserId();
 			String bookId = getOrdersDto.getBookId();
 			StatusEnum status = getOrdersDto.getStatus();
-			LocalDateTime createdAt = getOrdersDto.getCreatedAt();
+			LocalDate createdAt = getOrdersDto.getCreatedAt();
 
 			if (userId != null && !userId.isEmpty()) {
 				predicates.add(cb.like(cb.lower(root.get("userId")), userId));
@@ -70,7 +74,7 @@ public class OrderService {
 				predicates.add(cb.equal(root.get("status"), status));
 			}
 			if (createdAt != null) {
-				predicates.add(cb.equal(root.get("createdAt"), createdAt));
+				predicates.add(cb.equal(cb.function("DATE", LocalDate.class, root.get("createdAt")), createdAt));
 			}
 
 			return cb.and(predicates.toArray(new Predicate[0]));

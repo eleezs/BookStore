@@ -26,15 +26,15 @@ import java.util.List;
 
 @Service
 public class TransactionService {
-  @Autowired
-  private final TransactionRepository transactionRepository;
+	@Autowired
+	private final TransactionRepository transactionRepository;
 
-  public TransactionService(TransactionRepository transactionRepository) {
-    this.transactionRepository = transactionRepository;
-  }
+	public TransactionService(TransactionRepository transactionRepository) {
+	this.transactionRepository = transactionRepository;
+	}
 
 	public Page<Transaction> getAllTransactions(GetTransactionsDto getTransactionDto) {
-		Pageable pageable = PageRequest.of(getTransactionDto.getPage(), getTransactionDto.getSize());
+		Pageable pageable = PageRequest.of(getTransactionDto.getPage() - 1, getTransactionDto.getSize());
 		return transactionRepository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
 			String paymentMethod = getTransactionDto.getPaymentMethod();

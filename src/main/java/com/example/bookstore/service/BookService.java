@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.example.bookstore.dto.CreateBookDto;
 import com.example.bookstore.dto.GetBooksDto;
@@ -28,7 +28,11 @@ public class BookService {
 	private BookRepository bookRepository;
 
 	public Page<Book> getAllBooks(GetBooksDto getBooksDto) {
-		Pageable pageable = PageRequest.of(getBooksDto.getPage(), getBooksDto.getSize());
+		int size = getBooksDto.getSize();
+		int offset = getBooksDto.getPage() == 0 ? 1 : +getBooksDto.getPage();
+		int page = (offset - 1) * size;
+		Pageable pageable = PageRequest.of(page, size);
+
 		return bookRepository.findAll((root, query, cb) -> {
 			List<Predicate> predicates = new ArrayList<>();
 			String author = getBooksDto.getAuthor();
@@ -36,7 +40,7 @@ public class BookService {
 			String isbn = getBooksDto.getIsbn();
 			Double minPrice = getBooksDto.getMinPrice();
 			Double maxPrice = getBooksDto.getMaxPrice();
-			LocalDateTime createdAt = getBooksDto.getCreatedAt();
+			LocalDate createdAt = getBooksDto.getCreatedAt();
 
 			if (author != null && !author.isEmpty()) {
 				predicates.add(cb.like(cb.lower(root.get("author")), "%" + author.toLowerCase() + "%"));
@@ -54,7 +58,7 @@ public class BookService {
 				predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
 			}
 			if (createdAt != null) {
-				predicates.add(cb.equal(root.get("createdAt"), createdAt));
+				predicates.add(cb.equal(cb.function("DATE", LocalDate.class, root.get("createdAt")), createdAt));
 			}
 
 			return cb.and(predicates.toArray(new Predicate[0]));

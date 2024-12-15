@@ -23,13 +23,14 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping()
-    public ResponseEntity<Map<String, Object>> getAllBooks(@Valid @RequestParam GetBooksDto getBooksDto) {
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getAllBooks(@Valid GetBooksDto getBooksDto) {
+        System.out.println(getBooksDto.toString() + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
         Page<Book> bookPage = bookService.getAllBooks(getBooksDto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("books", bookPage.getContent());
-        response.put("currentPage", bookPage.getNumber());
+        response.put("currentPage", bookPage.getNumber() + 1);
         response.put("totalItems", bookPage.getTotalElements());
         response.put("totalPages", bookPage.getTotalPages());
 
